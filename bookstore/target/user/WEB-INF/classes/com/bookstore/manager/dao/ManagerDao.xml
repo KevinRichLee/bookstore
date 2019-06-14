@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bookstore.manager.dao.ManagerDao">
+    <select id="selectCount" resultType="Integer">
+        select count(*) from products 
+        <where>
+            <if test="searchCondition.id!=null and searchCondition.id!=''">
+                id = #{searchCondition.id}
+            </if>
+            <if test="searchCondition.category!=null and searchCondition.category!=''">
+                and category = #{searchCondition.category}
+            </if>
+            <if test="searchCondition.name!=null and searchCondition.name!=''">
+                and name like '%' #{searchCondition.name} '%'
+            </if>
+            <if test="searchCondition.minprice > 0">
+                and price &gt;= #{searchCondition.minprice}
+            </if>
+            <if test="searchCondition.maxprice > 0">
+                and price &lt;= #{searchCondition.maxprice}
+            </if>
+        </where>
+    </select>
+    <select id="selectAllByCondition" resultType="Product">
+        select * from products
+        <where>
+            <if test="searchCondition.id!=null and searchCondition.id!=''">
+                id = #{searchCondition.id}
+            </if>
+            <if test="searchCondition.category!=null and searchCondition.category!=''">
+                and category = #{searchCondition.category}
+            </if>
+            <if test="searchCondition.name!=null and searchCondition.name!=''">
+                and name like '%' #{searchCondition.name} '%'
+            </if>
+            <if test="searchCondition.minprice > 0">
+                and price &gt;= #{searchCondition.minprice}
+            </if>
+            <if test="searchCondition.maxprice > 0">
+                and price &lt;= #{searchCondition.maxprice}
+            </if>
+        </where>
+        limit ${pageModel.getFirstLimitParam},${pageModel.pageSize}
+    </select>
+    <delete id="deleteProduct">
+        delete from products where id = #{id}
+    </delete>
+    <insert id="insertProduct">
+        insert into products (id,name,category,pnum,price,imgurl,description)
+        values (#{id},#{name},#{category},#{pnum},#{price},#{imgurl},#{description})
+    </insert>
+    <update id="updateProduct">
+        update products set name=#{name},price=#{price},pnum=#{pnum},category=#{category},
+        description=#{description},imgurl=#{imgurl} where id=#{id}
+    </update>
+    <select id="selectSalesList" resultType="ProductList">
+        select p.id,p.name,SUM(ot.buynum) salenum
+        from products p,orders o,orderitem ot
+        where o.paystate = 1 and ot.order_id = o.id
+        and p.id = ot.product_id
+        and year(ordertime) = #{year}
+        and month(ordertime) = #{month}
+        group by p.id
+        order by salenum desc
+    </select>
+    <select id="selectOrderCount" resultType="Integer">
+        select count(*) from orders
+        <where>
+            <if test="order.id!=null and order.id!=''">
+                id = #{order.id}
+            </if>
+            <if test="order.receiverName!=null and order.receiverName!=''">
+                and receiverName like '%' #{order.receiverName} '%'
+            </if>
+        </where>
+    </select>
+    <select id="selectUser" resultType="User">
+        select username from user where id=#{user_id}
+    </select>
+    <resultMap id="OrderList" type="Order">
+        <association property="user" javaType="User" column="user_id" select="selectUser"/>
+    </resultMap>
+    <select id="selectOrderList" resultMap="OrderList">
+        select * from orders
+        <where>
+            <if test="order.id!=null and order.id!=''">
+                id = #{order.id}
+            </if>
+            <if test="order.receiverName!=null and order.receiverName!=''">
+                and receiverName like '%' #{order.receiverName} '%'
+            </if>
+        </where>
+        limit ${pageModel.getFirstLimitParam},${pageModel.pageSize}
+    </select>
+    <select id="selectProductAndOrderItem" resultType="Product">
+           select p.id,p.name,p.price,p.imgurl,SUM(ot.buynum) buynum,p.category,p.description
+           from products p,orderitem ot,orders o
+           where o.paystate = 1 and ot.order_id = o.id
+           and p.id = ot.product_id and o.id=#{id}
+           group by p.id
+    </select>
+    <resultMap id="OrderUser" type="Order">
+        <association property="user" javaType="User" column="user_id" select="selectUser"/>
+    <!--<association property="product" javaType="Product" column="id" select="selectProductAndOrderItem"/>-->
+        <collection property="products" ofType="Product" column="id" select="selectProductAndOrderItem"/>
+    </resultMap>
+    <select id="selectOrderById" resultMap="OrderUser">
+        select * from orders where id = #{id}
+    </select>
+    <delete id="delOrderById">
+        delete from orders where id = #{id}
+    </delete>
+
+    <select id="selectNoticeList" resultType="Notice">
+        select * from notice
+    </select>
+    <insert id="insertNotice">
+        insert into notice (title,details) values (#{title},#{details})
+    </insert>
+    <select id="selectNoticeById" resultType="Notice">
+        select * from notice where n_id = #{n_id}
+    </select>
+    <update id="updateNotice">
+        update notice set title=#{title},details=#{details} where n_id  = #{n_id}
+    </update>
+    <delete id="deleteNoticeById">
+        delete from notice where n_id = #{n_id}
+    </delete>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

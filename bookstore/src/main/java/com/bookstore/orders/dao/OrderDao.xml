@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bookstore.orders.dao.OrderDao">
+    <insert id="insertOrder">
+        insert into orders (id,money,receiverAddress,receiverName,receiverPhone,user_id) values (#{id},#{money},#{receiverAddress},#{receiverName},
+        #{receiverPhone},#{user_id})
+    </insert>
+    <update id="updatePayState">
+        update orders set paystate=1 where id=#{id}
+    </update>
+    <select id="findOrderByUser" resultType="Order">
+        select * from orders where user_id=#{id}
+    </select>
+    <delete id="deleteOrderById">
+        delete from orders where id=#{id}
+    </delete>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bookstore.products.dao.ProductDao">
+    <select id="selectByCategory" resultType="Product">
+        SELECT * FROM products
+        <where>
+            <if test="category!=null and category!=''">
+                category like '%' #{category} '%'
+            </if>
+        </where>
+        limit ${pageModel.getFirstLimitParam},${pageModel.pageSize}
+    </select>
+    <select id="selectProductByName" resultType="Product">
+        select * from products
+        <where>
+            <if test="name!=null and name!='' and name!='请输入书名'">
+            name like '%' #{name} '%'
+            </if>
+        </where>
+        limit ${pageModel.getFirstLimitParam},${pageModel.pageSize}
+    </select>
+    <select id="selectCount" resultType="Integer">
+        select COUNT(*) from products
+            <where>
+                <if test="category!=null and category!=''">
+                    category like '%' #{category} '%'
+                </if>
+        </where>
+    </select>
+    <select id="selectCountName" resultType="Integer">
+        select COUNT(*) from products
+        <where>
+            <if test="name!=null and name!='' and name!='请输入书名'">
+                name like '%' #{name} '%'
+            </if>
+        </where>
+    </select>
+    <select id="selectProductById" resultType="Product">
+        select * from products where id=#{id}
+    </select>
+    <update id="updateNum">
+        update  products set pnum=pnum-#{pnum} where id=#{id}
+    </update>
+    <update id="updateNumAdd">
+        update  products set pnum=pnum+#{pnum} where id=#{id}
+    </update>
+    <select id="selectRecentNotice" resultType="Notice">
+        select * from notice order by n_time desc limit 0,1
+    </select>
+    <select id="selectWeekHotProdects" resultType="Product">
+        select p.id,p.name,p.imgurl,p.price,SUM(ot.buynum) total
+        from products p,orders o,orderitem ot
+        where o.paystate = 1 and ot.order_id = o.id
+        and p.id = ot.product_id
+        and o.ordertime > DATE_SUB(NOW(),INTERVAL 7 DAY)
+        group by p.id
+        order by total desc
+        limit 0,2
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>
